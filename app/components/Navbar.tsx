@@ -1,21 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 const LINKS = [
-  { href: "#inicio", label: "Inicio" },
-  { href: "#servicio", label: "Nuestro servicio" },
-  { href: "#exitos", label: "Éxitos" },
-  { href: "#nosotros", label: "Sobre nosotros" },
-  { href: "#blog", label: "Blog" },
+  { href: "/", label: "Inicio" },
+  { href: "/nuestro-servicio", label: "Nuestro servicio" },
+  { href: "/exitos", label: "Éxitos" },
+  { href: "/sobre-nosotros", label: "Sobre nosotros" },
+  { href: "/blog", label: "Blog" },
 ];
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -24,40 +26,59 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-paper/80 backdrop-blur-lg shadow-[0_1px_0_0_rgba(10,10,10,0.06)]"
-          : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 bg-paper/85 backdrop-blur-lg transition-shadow duration-300 ${
+        scrolled || open
+          ? "shadow-[0_1px_0_0_rgba(10,10,10,0.06)]"
+          : "shadow-none"
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-10">
         <Link
-          href="#inicio"
+          href="/"
           className="font-display text-lg font-bold tracking-tight text-ink"
         >
           Daker<span className="text-violet-500">.</span>Studio
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex">
-          {LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm font-medium text-ink/70 transition-colors hover:text-ink"
-            >
-              {link.label}
-            </a>
-          ))}
+        <nav className="hidden items-center gap-1 md:flex">
+          {LINKS.map((link) => {
+            const active =
+              link.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative px-3 py-2 text-sm font-medium transition-colors ${
+                  active ? "text-ink" : "text-ink/60 hover:text-ink"
+                }`}
+              >
+                {link.label}
+                {active && (
+                  <motion.span
+                    layoutId="nav-active"
+                    className="absolute inset-x-3 -bottom-0.5 h-[2px] rounded-full bg-violet-500"
+                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                )}
+              </Link>
+            );
+          })}
         </nav>
 
-        <a
-          href="#contacto"
+        <Link
+          href="/contacto"
           className="hidden rounded-full bg-ink px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-600 md:inline-flex"
         >
           Contacto
-        </a>
+        </Link>
 
         <button
           aria-label="Abrir menú"
@@ -79,22 +100,20 @@ export function Navbar() {
           >
             <div className="flex flex-col gap-1 px-6 py-4">
               {LINKS.map((link) => (
-                <a
+                <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setOpen(false)}
                   className="rounded-lg px-2 py-2.5 text-sm font-medium text-ink/80 hover:bg-mist"
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
-              <a
-                href="#contacto"
-                onClick={() => setOpen(false)}
+              <Link
+                href="/contacto"
                 className="mt-2 rounded-full bg-ink px-5 py-2.5 text-center text-sm font-semibold text-white"
               >
                 Contacto
-              </a>
+              </Link>
             </div>
           </motion.nav>
         )}

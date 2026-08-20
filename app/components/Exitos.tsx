@@ -22,7 +22,7 @@ const CASES = [
     title: "Presencia digital profesional para captar más clientes",
     text: "Una web pensada para transmitir confianza desde el primer segundo: servicios claros, zona de cobertura y contacto directo para pedir presupuesto en un par de clics.",
     link: "Próximamente",
-    href: "#contacto",
+    href: "/contacto",
     image: null,
     hasImage: false,
   },

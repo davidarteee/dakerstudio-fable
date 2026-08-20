@@ -38,7 +38,7 @@ export function Servicios() {
               ofreces y contactarte fácilmente.
             </p>
             <a
-              href="#contacto"
+              href="/contacto"
               className="group mt-8 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-violet-600"
             >
               Quiero mi página web

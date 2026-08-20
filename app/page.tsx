@@ -1,27 +1,21 @@
-import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
-import { Servicios } from "./components/Servicios";
-import { Exitos } from "./components/Exitos";
-import { SobreNosotros } from "./components/SobreNosotros";
+import { ServiciosTeaser } from "./components/ServiciosTeaser";
+import { ExitosTeaser } from "./components/ExitosTeaser";
+import { SobreNosotrosTeaser } from "./components/SobreNosotrosTeaser";
 import { Testimonios } from "./components/Testimonios";
-import { Blog } from "./components/Blog";
-import { CTAFinal } from "./components/CTAFinal";
-import { Footer } from "./components/Footer";
+import { BlogTeaser } from "./components/BlogTeaser";
+import { CTABanner } from "./components/CTABanner";
 
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <main className="flex-1">
-        <Hero />
-        <Servicios />
-        <Exitos />
-        <SobreNosotros />
-        <Testimonios />
-        <Blog />
-        <CTAFinal />
-      </main>
-      <Footer />
+      <Hero />
+      <ServiciosTeaser />
+      <ExitosTeaser />
+      <SobreNosotrosTeaser />
+      <Testimonios />
+      <BlogTeaser />
+      <CTABanner />
     </>
   );
 }

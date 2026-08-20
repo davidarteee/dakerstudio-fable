@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal, RevealGroup, RevealItem } from "./Reveal";
 
@@ -12,9 +13,9 @@ const POSTS = [
   },
 ];
 
-export function Blog() {
+export function BlogTeaser() {
   return (
-    <section id="blog" className="bg-paper py-28">
+    <section className="bg-paper py-28">
       <div className="mx-auto max-w-6xl px-6 md:px-10">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-6">
@@ -26,14 +27,24 @@ export function Blog() {
                 Artículos destacados
               </h2>
             </div>
+            <Link
+              href="/blog"
+              className="group inline-flex items-center gap-1.5 text-sm font-semibold text-ink transition-colors hover:text-violet-600"
+            >
+              Ver todo el blog
+              <ArrowUpRight
+                size={15}
+                className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
+            </Link>
           </div>
         </Reveal>
 
         <RevealGroup className="mt-14 grid gap-5 sm:grid-cols-2">
           {POSTS.map((post) => (
             <RevealItem key={post.title}>
-              <a
-                href="/contacto"
+              <Link
+                href="/blog"
                 className="group flex h-full flex-col justify-between rounded-2xl border border-ink/8 bg-white p-7 transition-all hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_20px_40px_-20px_rgba(111,43,240,0.25)]"
               >
                 <div>
@@ -48,7 +59,7 @@ export function Blog() {
                   Leer artículo
                   <ArrowUpRight size={15} />
                 </span>
-              </a>
+              </Link>
             </RevealItem>
           ))}
         </RevealGroup>
