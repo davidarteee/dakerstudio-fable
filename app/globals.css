@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+
+  --color-ink: #0a0a0a;
+  --color-paper: #ffffff;
+  --color-mist: #f7f5fb;
+
+  --color-violet-50: #f4f0ff;
+  --color-violet-200: #d8c7ff;
+  --color-violet-400: #a578ff;
+  --color-violet-500: #8a4bff;
+  --color-violet-600: #6f2bf0;
+  --color-violet-900: #1c0e3d;
+  --color-violet-950: #100726;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ink: var(--color-ink);
+  --color-paper: var(--color-paper);
+  --color-mist: var(--color-mist);
+  --color-violet-50: var(--color-violet-50);
+  --color-violet-200: var(--color-violet-200);
+  --color-violet-400: var(--color-violet-400);
+  --color-violet-500: var(--color-violet-500);
+  --color-violet-600: var(--color-violet-600);
+  --color-violet-900: var(--color-violet-900);
+  --color-violet-950: var(--color-violet-950);
+  --font-display: var(--font-bricolage);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: var(--color-violet-500);
+  color: white;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
