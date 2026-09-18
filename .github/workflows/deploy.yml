@@ -1,0 +1,44 @@
+name: Build i desplegar a Hostinger (FTP)
+
+# S'executa a cada push a main. Construeix la web (Next.js → out/) i puja out/ per FTP.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descarregar el repositori
+        uses: actions/checkout@v4
+
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instal·lar dependències
+        run: npm ci
+
+      - name: Construir la web (exportació estàtica a out/)
+        run: npm run build
+
+      - name: Pujar out/ per FTP a Hostinger
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          # Secrets del repo: FTP_SERVER (només IP/host), FTP_USERNAME, FTP_PASSWORD
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp # l'FTPS de Hostinger falla sovint des de CI
+          port: 21
+          timeout: 60000
+          local-dir: ./out/
+          # L'usuari FTP dedicat ja aterra dins de public_html → arrel
+          server-dir: ./
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**

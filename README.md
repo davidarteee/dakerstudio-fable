@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# dakerstudio.com
 
-## Getting Started
+Web de DakerStudio. Next.js 16 (App Router) amb **exportació estàtica** (`out/`), desplegada a Hostinger per FTP amb GitHub Actions.
 
-First, run the development server:
+## Comandes
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev      # servidor local (http://localhost:3000)
+npm run images   # regenera public/img i lib/images.generated.ts des d'assets-src/
+npm run build    # exportació estàtica a out/
+npm run lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estructura
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+app/
+  (ca)/            rutes en català  → /, /qui-som/, /projectes/, /projectes/[slug]/, /contacte/
+  (es)/es/         rutes en castellà → /es/, /es/quienes-somos/, /es/proyectos/, /es/proyectos/[slug]/, /es/contacto/
+  global-not-found.tsx, sitemap.ts, robots.ts, icon.png, opengraph-image.png
+  globals.css      tokens, tipografia i tots els estils dels components
+components/
+  home/            seccions de la Home (Hero + HeroTitle, ServiceRotator, About, Services, ProjectsShowcase, Process, Testimonials, Faq, Cta)
+  pages/           pàgines completes (HomePage, AboutPage, ProjectsPage, ProjectPage, ContactPage)
+  Cursor, Nav, StickyCta, Footer, SiteShell, Picture, ContactForm, RevealObserver, Icons
+content/
+  dictionary.ts    tots els textos en CA i ES (mateixa estructura, redactats per separat)
+  projects.ts      projectes (slug per idioma, imatges, textos)
+  testimonials.ts  testimonis reals (text original en castellà)
+  site.ts          contacte: WhatsApp David/Iker, Instagram, correu
+lib/
+  i18n.ts          rutes localitzades, SITE_URL
+  metadata.ts      metadades SEO (canonical, hreflang, Open Graph)
+  fonts.ts         Baskervville (hero/CTA/peu) · Inter (títols bold, cos, etiquetes)
+  images.generated.ts  manifest d'imatges (generat, no editar)
+assets-src/        imatges originals (logo, equip, NFC, captures dels projectes, services/ amb 4 fotos d'Unsplash ja usades abans per DakerStudio)
+scripts/images.mjs pipeline d'imatges (sharp → WebP en diverses mides + icones + OG)
+public/.htaccess   404 i cache per a Apache/Hostinger
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Afegir un projecte
 
-## Learn More
+1. Captures a `assets-src/projects/` amb el patró `<id>-desktop-1.png`, `<id>-desktop-2.png`, `<id>-mobile-1.png`, `<id>-mobile-2.png`.
+2. `npm run images`.
+3. Nova entrada a `content/projects.ts` (slug en CA i ES, textos, claus d'imatge `project-<id>-...`).
+4. Si té testimoni, afegir-lo a `content/testimonials.ts` amb el `projectId`.
 
-To learn more about Next.js, take a look at the following resources:
+Les pàgines `/projectes/<slug>/` i `/es/proyectos/<slug>/` es generen soles.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Afegir o canviar un servei
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Editar `content/dictionary.ts` (`hero.services` per al rotador i `services.items` per a les files), en tots dos idiomes.
 
-## Deploy on Vercel
+## Desplegament
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Cada push a `main` executa `.github/workflows/deploy.yml`: `npm ci` → `npm run build` → puja `out/` per FTP a l'arrel del `public_html`.
+Secrets necessaris al repo: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Decisions de disseny
+
+- Referència: Aldena Studio (Framer). Serif **Baskervville** només al hero, al CTA i a la marca del peu; **títols en Inter 700**, cos en Inter 400.
+- Hero: logo fix de fons (`.hero__bg`, per això `<html>` no té background) i titular en canvas que es descompon en partícules al voltant del cursor (`components/home/HeroTitle.tsx`).
+- Cursor personalitzat només amb punter fi (`hover: hover` + `pointer: fine`); al mòbil no existeix.
+- Totes les animacions respecten `prefers-reduced-motion`.
+- Cap dependència d'animació: tot amb CSS + IntersectionObserver + `requestAnimationFrame`.
+- Formulari de contacte sense servidor: obre WhatsApp o el correu amb el missatge compost.

@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "layout-transition",
+        "value": "width",
+        "files": [
+          "app/globals.css"
+        ],
+        "createdAt": "2026-09-18T20:03:42.193Z",
+        "reason": "Claude: l'usuari va demanar explícitament que la imatge del projecte s'eixampli en passar-hi el cursor (referència Aldena); és un sol element en hover, sense germans que refluixin"
+      }
+    ]
+  }
+}
