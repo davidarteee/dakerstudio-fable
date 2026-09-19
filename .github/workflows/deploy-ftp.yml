@@ -1,42 +1,43 @@
-name: Desplegar a Hostinger per FTP (manual)
+name: Desplegar a Hostinger per FTP
 
-# Alternativa manual al workflow principal (deploy.yml, branca hostinger).
-# Només s'executa a mà des de la pestanya Actions i necessita els secrets
-# FTP_SERVER, FTP_USERNAME i FTP_PASSWORD.
+# GitHub compila la web i puja out/ per FTP a Hostinger a cada push a main.
+# No depen del build de Hostinger (que no publica de forma fiable aquesta web).
+# Necessita els secrets del repo: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 on:
+  push:
+    branches: [main]
   workflow_dispatch: {}
+
+concurrency:
+  group: deploy-ftp
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Descarregar el repositori
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - name: Instal·lar dependències
-        run: npm ci
+      - run: npm install --no-audit --no-fund
 
-      - name: Construir la web (exportació estàtica a out/)
+      - name: Construir (Next.js -> out/)
         run: npm run build
 
       - name: Pujar out/ per FTP a Hostinger
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          # Secrets del repo: FTP_SERVER (només IP/host), FTP_USERNAME, FTP_PASSWORD
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp # l'FTPS de Hostinger falla sovint des de CI
+          protocol: ftp
           port: 21
           timeout: 60000
           local-dir: ./out/
-          # L'usuari FTP dedicat ja aterra dins de public_html → arrel
           server-dir: ./
           dangerous-clean-slate: false
           exclude: |
