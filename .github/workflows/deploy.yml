@@ -3,9 +3,9 @@ name: Construir i publicar a la branca hostinger
 # GitHub compila el codi (servidors moderns, sense el problema de glibc de Hostinger)
 # i deixa el resultat de out/ a la branca `hostinger`. A Hostinger es connecta AQUESTA
 # branca com a lloc estàtic SENSE build: només serveix els fitxers ja compilats.
+# Nomes manual: Hostinger ja desplega des de main (build natiu). Aquest workflow
+# queda com a xarxa de seguretat per regenerar la branca hostinger sota demanda.
 on:
-  push:
-    branches: [main]
   workflow_dispatch: {}
 
 permissions:

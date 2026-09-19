@@ -100,18 +100,19 @@ public/.htaccess                404 i cache a Hostinger
 
 ## 8. Desplegament
 
-**El servidor compartit de Hostinger NO pot desplegar de forma fiable un Next.js que compila ell mateix.** Té una glibc antiga (< 2.29): el compilador natiu SWC i Turbopack no carreguen. Amb `next.config.mjs` + `next build --webpack` la compilació SÍ passa (usa el fallback WASM i genera les 19 pàgines), però Hostinger, un cop compilat, falla amb *"No output directory found after build"* — no localitza la carpeta `out/`. Provat i confirmat el 2026-09-19.
+**En producció a https://dakerstudio.dakerstudio.com** via el **Git deployment de hPanel** connectat a `dakerstudio-fable`, branca `main`, preajust **Next.js**, directori de sortida **`out`**, Node 22.
 
-**Solució en ús: GitHub compila, Hostinger només serveix.**
+Detall important: Hostinger té glibc antiga (< 2.29), així que el compilador natiu SWC/Turbopack no carrega. Amb els fixos del repo (`next.config.mjs` en comptes de `.ts`, i `build: next build --webpack`) el build **sí que passa** via el fallback WASM, genera `out/` i Hostinger el copia i el serveix. Al final de cada desplegament Hostinger fa una comprovació pensada per a apps Node amb servidor i marca **"Falló la compilación"** — és una **falsa alarma sobre l'estat**: la web queda publicada i actualitzada igualment. Confirmat el 2026-09-19 (home CA/ES, projectes i contacte en línia amb l'última versió). Cal **ignorar el rètol vermell** i comprovar el lloc real.
 
-1. Workflow `.github/workflows/deploy.yml`: a cada push a `main`, GitHub (servidors moderns) fa `npm ci` → `npm run build` i publica el contingut de `out/` a la branca **`hostinger`** del mateix repo (`peaceiris/actions-gh-pages`, orphan). Sense secrets.
-2. A **Hostinger → Git deployment** es connecta la branca **`hostinger`** com a lloc **estàtic / sense framework** (preajust del marc NO Next.js), sense comando de compilació, arrel `./`. Hostinger només serveix els fitxers ja compilats.
+Coses que NO funcionen (provades i descartades):
+- Que Hostinger construeixi amb `next.config.ts` o Turbopack (glibc).
+- Connectar una branca ja compilada com a estàtica: el Git deployment de Hostinger només accepta projectes Node que pugui construir ell (preset "Other" → "estructura de proyecto no válida").
 
-Segueix sent el codi Next.js compilat (no és HTML de Claude Design ni FTP); l'únic canvi és que la build corre a GitHub en comptes del servidor de Hostinger.
+Backups (tots dos manuals, `workflow_dispatch`):
+- `.github/workflows/deploy.yml`: GitHub compila i publica `out/` a la branca `hostinger` (per baixar-la en ZIP i pujar-la a mà si mai cal).
+- `.github/workflows/deploy-ftp.yml`: puja `out/` per FTP (`SamKirkland/FTP-Deploy-Action`, secrets `FTP_SERVER`/`FTP_USERNAME`/`FTP_PASSWORD`).
 
-**Alternativa manual per FTP** (`.github/workflows/deploy-ftp.yml`, `workflow_dispatch`): puja `out/` per FTP amb `SamKirkland/FTP-Deploy-Action`. Secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`. Backup si mai cal.
-
-`next.config.mjs` (no `.ts`) i `build: next build --webpack` es mantenen: fan que la build funcioni tant a GitHub com, si algun dia calgués, en entorns amb glibc antiga.
+Mantenir sempre `next.config.mjs` (no `.ts`) i `build: next build --webpack`.
 
 ## 9. Historial de decisions (resum)
 
