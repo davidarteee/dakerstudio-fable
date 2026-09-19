@@ -53,8 +53,13 @@ Editar `content/dictionary.ts` (`hero.services` per al rotador i `services.items
 
 ## Desplegament
 
-Cada push a `main` executa `.github/workflows/deploy.yml`: `npm ci` → `npm run build` → puja `out/` per FTP a l'arrel del `public_html`.
-Secrets necessaris al repo: `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`.
+**Hostinger Git deployment** (hPanel → Git): construeix directament des de `main`.
+- Marc: Next.js · Branca: `main` · Node: 22.x · Directori arrel: `./`
+- Comando de compilació: `npm run build` · Gestor: `npm` · **Directori de sortida: `out`** (no `.next`)
+
+La config és `next.config.mjs` (no `.ts`) i el build usa `next build --webpack` perquè el servidor de Hostinger té una glibc antiga i no pot executar el compilador natiu SWC ni Turbopack. Vegeu `CONTEXT.md` §8.
+
+Alternativa manual per FTP: `.github/workflows/deploy-ftp.yml` (`workflow_dispatch`, secrets `FTP_SERVER`/`FTP_USERNAME`/`FTP_PASSWORD`).
 
 ## Decisions de disseny
 

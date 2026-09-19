@@ -1,9 +1,9 @@
-name: Build i desplegar a Hostinger (FTP)
+name: Desplegar a Hostinger per FTP (manual)
 
-# S'executa a cada push a main. Construeix la web (Next.js → out/) i puja out/ per FTP.
+# Alternativa manual al workflow principal (deploy.yml, branca hostinger).
+# Només s'executa a mà des de la pestanya Actions i necessita els secrets
+# FTP_SERVER, FTP_USERNAME i FTP_PASSWORD.
 on:
-  push:
-    branches: [main]
   workflow_dispatch: {}
 
 jobs:

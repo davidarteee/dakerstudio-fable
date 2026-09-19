@@ -100,11 +100,19 @@ public/.htaccess                404 i cache a Hostinger
 
 ## 8. Desplegament
 
-Hostinger (hosting compartit, només estàtic). A cada push a `main`, el workflow fa `npm ci` → `npm run build` → puja `out/` per FTP a l'arrel del `public_html` (`SamKirkland/FTP-Deploy-Action`, `protocol: ftp`, `server-dir: ./`).
+Hostinger (hosting compartit). El desplegament es fa amb el **Git deployment de hPanel**: Hostinger clona el repo, executa la build i serveix el resultat. Configuració al panell (hPanel → Git → Configuració de compilació):
 
-Secrets necessaris al repo: `FTP_SERVER` (IP/host), `FTP_USERNAME`, `FTP_PASSWORD` (compte FTP dedicat del domini).
+- **Preajust del marc:** Next.js · **Branca:** `main` · **Versió del node:** 22.x · **Directori arrel:** `./`
+- **Comando de compilació:** `npm run build`
+- **Gestor de paquets:** `npm`
+- **Directori de sortida:** **`out`** (NO `.next`) — és una exportació estàtica (`output: "export"`), els fitxers finals són a `out/`.
 
-Comandes locals: `npm run dev` · `npm run images` · `npm run build` · `npm run lint`.
+**Per què la build fallava i com s'ha resolt** (el servidor de Hostinger té una glibc antiga, < 2.29):
+
+1. `next.config.ts` obligava Next a compilar la config amb SWC; el binari natiu SWC no carrega (glibc) i deixava un `<hash>.next.config` orfe → *"Failed to load next.config.ts"*. **Solució:** la config és `next.config.mjs` (ES module que Next carrega tal qual, sense compilar).
+2. La build per defecte usa Turbopack (binari natiu, tampoc carrega). **Solució:** `"build": "next build --webpack"` — webpack + el fallback `@next/swc-wasm-nodejs` (wasm), que sí funciona en glibc antiga.
+
+**Alternativa manual** (`.github/workflows/deploy-ftp.yml`): construeix a GitHub i puja `out/` per FTP amb `SamKirkland/FTP-Deploy-Action` (`protocol: ftp`, `server-dir: ./`). Només s'executa a mà (`workflow_dispatch`) i necessita els secrets `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`. Útil si el build de Hostinger falla o va lent.
 
 ## 9. Historial de decisions (resum)
 
