@@ -1,0 +1,42 @@
+name: Construir i publicar a la branca hostinger
+
+# GitHub compila el codi (servidors moderns, sense el problema de glibc de Hostinger)
+# i deixa el resultat de out/ a la branca `hostinger`. A Hostinger es connecta AQUESTA
+# branca com a lloc estàtic SENSE build: només serveix els fitxers ja compilats.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-hostinger
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Construir (Next.js -> out/)
+        run: npm run build
+
+      - name: Publicar out/ a la branca hostinger
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out
+          publish_branch: hostinger
+          force_orphan: true
+          enable_jekyll: true
+          commit_message: "Build estàtic de ${{ github.sha }}"
