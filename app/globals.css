@@ -541,8 +541,9 @@ html.has-cursor * {
     grid-column: 1 / span 6;
   }
   .hero__right {
-    grid-column: 9 / span 4;
-    justify-self: end;
+    grid-column: 8 / span 5;
+    display: flex;
+    justify-content: flex-end;
     width: 100%;
   }
 }
