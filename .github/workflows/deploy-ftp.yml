@@ -4,8 +4,6 @@ name: Desplegar a Hostinger per FTP
 # No depen del build de Hostinger (que no publica de forma fiable aquesta web).
 # Necessita els secrets del repo: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD.
 on:
-  push:
-    branches: [main]
   workflow_dispatch: {}
 
 concurrency:
