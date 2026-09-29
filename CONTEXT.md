@@ -65,7 +65,7 @@ Català per defecte a l'arrel; castellà a `/es/` amb slugs propis (`/qui-som/` 
 
 ## 7. Arquitectura tècnica
 
-- **Next.js 16 (App Router) + Tailwind v4 + TypeScript**, `output: "export"` → carpeta `out/` 100 % estàtica.
+- **Next.js 16 (App Router) + Tailwind v4 + TypeScript**, **app Node normal** (com `antonella-web`): SENSE `output: "export"`. Hostinger la construeix a `.next` i la serveix amb `next start`.
 - Dos root layouts: `app/(ca)/` i `app/(es)/es/`; `app/global-not-found.tsx` (cal `experimental.globalNotFound`).
 - **Cap llibreria d'animació**: tot amb CSS, `IntersectionObserver` (`RevealObserver` + atribut `data-reveal`) i `requestAnimationFrame`. Cursor, partícules, moneda 3D i revelats són components propis.
 - **Imatges**: `next/image` no funciona en export estàtic → `scripts/images.mjs` (sharp) genera WebP a diverses mides + icones + OG + `lib/images.generated.ts`; el component `<Picture>` fa `<img srcSet>` amb mides fixes (sense CLS). `public/img/` **es puja al repo** (el build de CI no regenera imatges).
@@ -89,8 +89,8 @@ components/Cursor.tsx           cursor lila
 lib/i18n.ts, lib/metadata.ts    rutes i SEO
 scripts/images.mjs              pipeline d'imatges
 assets-src/                     imatges originals (logo, fotos equip, NFC, captures, services/)
-public/.htaccess                404 i cache a Hostinger
-.github/workflows/deploy.yml    build + FTP
+public/.htaccess                404 i cache (llegat de l'època estàtica)
+.github/workflows/*.yml         backups FTP/ZIP (OBSOLETS: publicaven out/, ja no existeix)
 ```
 
 ### Com ampliar
@@ -100,17 +100,24 @@ public/.htaccess                404 i cache a Hostinger
 
 ## 8. Desplegament
 
-**En producció a https://dakerstudio.dakerstudio.com** via el **Git deployment de hPanel** connectat a `dakerstudio-fable`, branca `main`, preajust **Next.js**, directori de sortida **`out`**, Node 22.
+**Mètode actual: app Next.js Node normal desplegada via el Git deployment de hPanel** (mateix patró que `antonella-web`). Repo `davidarteee/dakerstudio`, branca `main`.
 
-Detall important: Hostinger té glibc antiga (< 2.29), així que el compilador natiu SWC/Turbopack no carrega. Amb els fixos del repo (`next.config.mjs` en comptes de `.ts`, i `build: next build --webpack`) el build **sí que passa** via el fallback WASM, genera `out/` i Hostinger el copia i el serveix. Al final de cada desplegament Hostinger fa una comprovació pensada per a apps Node amb servidor i marca **"Falló la compilación"** — és una **falsa alarma sobre l'estat**: la web queda publicada i actualitzada igualment. Confirmat el 2026-09-19 (home CA/ES, projectes i contacte en línia amb l'última versió). Cal **ignorar el rètol vermell** i comprovar el lloc real.
+Procediment:
+1. Treballar localment i fer `git push` a `main`.
+2. Hostinger (hPanel → Git deployment, preajust **Next.js**, **Node 22**) clona el repo, fa `npm run build` i serveix l'app amb `next start`. La sortida és `.next` (NO `out/`: ja no hi ha `output: export`).
+3. Cada push a `main` redesplega.
+
+Fixos obligatoris pel glibc antic (< 2.29) de Hostinger — el compilador natiu SWC/Turbopack no carrega:
+- **`next.config.mjs`** (mai `.ts`): el `.ts` es compila amb SWC natiu i falla.
+- **`"build": "next build --webpack"`**: evita Turbopack (natiu); webpack usa el fallback WASM.
+- `"start": "next start"` per servir l'app Node.
 
 Coses que NO funcionen (provades i descartades):
 - Que Hostinger construeixi amb `next.config.ts` o Turbopack (glibc).
-- Connectar una branca ja compilada com a estàtica: el Git deployment de Hostinger només accepta projectes Node que pugui construir ell (preset "Other" → "estructura de proyecto no válida").
+- `output: "export"` → trencava el desplegament per defecte de Hostinger (per això s'ha tret).
 
-Backups (tots dos manuals, `workflow_dispatch`):
-- `.github/workflows/deploy.yml`: GitHub compila i publica `out/` a la branca `hostinger` (per baixar-la en ZIP i pujar-la a mà si mai cal).
-- `.github/workflows/deploy-ftp.yml`: puja `out/` per FTP (`SamKirkland/FTP-Deploy-Action`, secrets `FTP_SERVER`/`FTP_USERNAME`/`FTP_PASSWORD`).
+Backups OBSOLETS a `.github/workflows/` (`deploy.yml`, `deploy-ftp.yml`): publicaven la carpeta `out/`
+de l'època estàtica, que ja no es genera. Netejar o reescriure si mai calen.
 
 Mantenir sempre `next.config.mjs` (no `.ts`) i `build: next build --webpack`.
 
